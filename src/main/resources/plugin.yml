@@ -1,4 +1,0 @@
-name: ConfigUpdater
-version: '1.0.0'
-main: com.uxplima.configupdater.ConfigUpdater
-api-version: '1.20'
