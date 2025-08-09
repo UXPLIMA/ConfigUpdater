@@ -6,11 +6,16 @@ import java.util.Collection;
 import java.util.List;
 
 public class ConfigUpdaterBuilder {
+
     private JavaPlugin plugin;
     private Collection<String> files;
     private Collection<UpdateProdiver> updateProdivers;
     private String configVersion;
     private String jarVersion;
+
+    public ConfigUpdaterBuilder(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     public ConfigUpdaterBuilder setPlugin(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -37,7 +42,8 @@ public class ConfigUpdaterBuilder {
         return this;
     }
 
-    public ConfigUpdater createConfigUpdater() {
+    public ConfigUpdater build() {
         return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers);
     }
+
 }

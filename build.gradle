@@ -1,6 +1,19 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id 'maven-publish'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.uxplima'
+            artifactId = 'configupdater'
+            version = '1.0.0'
+
+            from components.java
+        }
+    }
 }
 
 group = 'com.uxplima'

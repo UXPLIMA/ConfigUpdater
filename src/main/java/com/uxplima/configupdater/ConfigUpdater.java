@@ -172,4 +172,12 @@ public class ConfigUpdater {
         return resourceConfigs;
     }
 
+    public JavaPlugin getPlugin() {
+        return plugin;
+    }
+
+    public static ConfigUpdaterBuilder builder(JavaPlugin plugin) {
+        return new ConfigUpdaterBuilder(plugin);
+    }
+
 }
