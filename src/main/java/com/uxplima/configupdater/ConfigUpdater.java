@@ -19,19 +19,23 @@ public class ConfigUpdater {
     private final String jarVersion;
     private final Collection<String> files;
     private final Collection<UpdateProdiver> updateProdivers;
+    private final boolean mergeMissingNodes;
     private final long backupStart = System.currentTimeMillis();
 
     private Map<String, FileConfiguration> diskConfigs = new HashMap<>();
     private Map<String, FileConfiguration> resourceConfigs = new HashMap<>();
 
-    ConfigUpdater(JavaPlugin plugin, Collection<String> files, String configVersion, String jarVersion, Collection<UpdateProdiver> updateProdivers) {
+    ConfigUpdater(JavaPlugin plugin, Collection<String> files,
+                  String configVersion, String jarVersion,
+                  Collection<UpdateProdiver> updateProdivers, boolean mergeMissingNodes) {
         this.plugin = plugin;
         this.pluginConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
         this.files = files;
-        this.updateProdivers = updateProdivers;
         this.logger = plugin.getLogger();
         this.configVersion = configVersion;
         this.jarVersion = jarVersion;
+        this.updateProdivers = updateProdivers;
+        this.mergeMissingNodes = mergeMissingNodes;
     }
 
     public void update() {
@@ -43,6 +47,7 @@ public class ConfigUpdater {
         backupFiles();
         cacheFiles();
         runProvidedUpdates();
+        updateConfigVersion();
         merge();
     }
 
@@ -87,6 +92,17 @@ public class ConfigUpdater {
         }
     }
 
+    private void updateConfigVersion() {
+        File diskFile = new File(plugin.getDataFolder(), "config.yml");
+        if (!diskFile.exists()) return;
+
+        FileConfiguration diskConfig = diskConfigs.get("config.yml");
+        diskConfig.set("config-version", jarVersion);
+        save(diskFile, diskConfig);
+
+        logger.info("Updated config version!\n");
+    }
+
     private void merge() {
         cacheFiles(); // Cache again since providers may have changed the files.
 
@@ -108,29 +124,21 @@ public class ConfigUpdater {
 
             boolean anyChange = false;
 
-            for (String key : resourceConfig.getKeys(true)) {
-                if (!diskConfig.isSet(key)) {
-                    diskConfig.set(key, resourceConfig.get(key));
-                    diskConfig.setComments(key, resourceConfig.getComments(key));
-                    diskConfig.setInlineComments(key, resourceConfig.getInlineComments(key));
-                    anyChange = true;
+            if (mergeMissingNodes) {
+                for (String key : resourceConfig.getKeys(true)) {
+                    if (!diskConfig.isSet(key)) {
+                        diskConfig.set(key, resourceConfig.get(key));
+                        diskConfig.setComments(key, resourceConfig.getComments(key));
+                        diskConfig.setInlineComments(key, resourceConfig.getInlineComments(key));
+                        anyChange = true;
+                    }
                 }
             }
 
-            if (file.equals("config.yml")) {
-                diskConfig.set("config-version", jarVersion);
+            if (anyChange) {
                 save(diskFile, diskConfig);
-
-                logger.info("Updated " + file + "!\n");
-                continue;
             }
 
-            if (!anyChange) {
-                logger.info("No changes in " + file + ", skipping...\n");
-                continue;
-            }
-
-            save(diskFile, diskConfig);
             logger.info("Updated " + file + "!\n");
         }
     }

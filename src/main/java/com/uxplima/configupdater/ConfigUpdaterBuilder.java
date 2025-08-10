@@ -11,6 +11,7 @@ public class ConfigUpdaterBuilder {
     private Collection<UpdateProdiver> updateProdivers = new ArrayList<>();
     private String configVersion;
     private String jarVersion;
+    private boolean mergeMissingNodes;
 
     public ConfigUpdaterBuilder(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -51,8 +52,13 @@ public class ConfigUpdaterBuilder {
         return this;
     }
 
+    public ConfigUpdaterBuilder setMergeMissingNodes(boolean mergeMissingNodes) {
+        this.mergeMissingNodes = mergeMissingNodes;
+        return this;
+    }
+
     public ConfigUpdater build() {
-        return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers);
+        return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers, mergeMissingNodes);
     }
 
 }
