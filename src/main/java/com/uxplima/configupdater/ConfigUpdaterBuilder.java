@@ -7,7 +7,7 @@ import java.util.*;
 public class ConfigUpdaterBuilder {
 
     private JavaPlugin plugin;
-    private Collection<String> files;
+    private Collection<String> files = new ArrayList<>();
     private Collection<UpdateProdiver> updateProdivers = new ArrayList<>();
     private String configVersion;
     private String jarVersion;
@@ -23,6 +23,11 @@ public class ConfigUpdaterBuilder {
 
     public ConfigUpdaterBuilder setFiles(Collection<String> files) {
         this.files = files;
+        return this;
+    }
+
+    public ConfigUpdaterBuilder setFiles(String... files) {
+        this.files.addAll(List.of(files));
         return this;
     }
 
