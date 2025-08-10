@@ -26,7 +26,7 @@ public class ConfigUpdater {
 
     ConfigUpdater(JavaPlugin plugin, Collection<String> files, String configVersion, String jarVersion, Collection<UpdateProdiver> updateProdivers) {
         this.plugin = plugin;
-        this.pluginConfig = plugin.getConfig();
+        this.pluginConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
         this.files = files;
         this.updateProdivers = updateProdivers;
         this.logger = plugin.getLogger();
