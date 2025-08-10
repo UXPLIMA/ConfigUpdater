@@ -75,9 +75,6 @@ public class ConfigUpdaterBuilder {
         if (files.isEmpty()) {
             throw new IllegalArgumentException("Files cannot be null");
         }
-        if (updateProdivers.isEmpty()) {
-            throw new IllegalArgumentException("Files cannot be null");
-        }
 
         return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion);
     }
