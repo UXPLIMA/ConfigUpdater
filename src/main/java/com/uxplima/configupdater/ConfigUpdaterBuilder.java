@@ -11,7 +11,7 @@ public class ConfigUpdaterBuilder {
     private Collection<UpdateProdiver> updateProdivers = new ArrayList<>();
     private String configVersion;
     private String jarVersion;
-    private boolean mergeMissingNodes, updateConfigVersion;
+    private boolean mergeMissingNodes, deleteUnknownNodes, updateConfigVersion;
 
     public ConfigUpdaterBuilder(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -57,6 +57,11 @@ public class ConfigUpdaterBuilder {
         return this;
     }
 
+    public ConfigUpdaterBuilder setDeleteUnknownNodes(boolean deleteUnknownNodes) {
+        this.deleteUnknownNodes = deleteUnknownNodes;
+        return this;
+    }
+
     public ConfigUpdaterBuilder setUpdateConfigVersion(boolean updateConfigVersion) {
         this.updateConfigVersion = updateConfigVersion;
         return this;
@@ -74,7 +79,7 @@ public class ConfigUpdaterBuilder {
             throw new IllegalArgumentException("Files cannot be null");
         }
 
-        return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers, mergeMissingNodes, updateConfigVersion);
+        return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion);
     }
 
 }
