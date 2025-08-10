@@ -101,7 +101,7 @@ public class ConfigUpdater {
         File diskFile = new File(plugin.getDataFolder(), "config.yml");
         if (!diskFile.exists()) return;
 
-        FileConfiguration diskConfig = diskConfigs.get("config.yml");
+        FileConfiguration diskConfig = YamlConfiguration.loadConfiguration(diskFile);
         diskConfig.set("config-version", jarVersion);
         save(diskFile, diskConfig);
 
