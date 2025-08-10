@@ -81,6 +81,8 @@ public class ConfigUpdater {
 
     private void runProvidedUpdates() {
         for (UpdateProdiver prodiver : updateProdivers) {
+            if (!prodiver.checkVersion()) continue;
+
             prodiver.update(this);
         }
     }

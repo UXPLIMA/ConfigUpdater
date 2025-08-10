@@ -2,14 +2,13 @@ package com.uxplima.configupdater;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class ConfigUpdaterBuilder {
 
     private JavaPlugin plugin;
     private Collection<String> files;
-    private Collection<UpdateProdiver> updateProdivers;
+    private Collection<UpdateProdiver> updateProdivers = new ArrayList<>();
     private String configVersion;
     private String jarVersion;
 
@@ -39,6 +38,11 @@ public class ConfigUpdaterBuilder {
 
     public ConfigUpdaterBuilder setUpdateProviders(Collection<UpdateProdiver> updateProviders) {
         this.updateProdivers = updateProviders;
+        return this;
+    }
+
+    public ConfigUpdaterBuilder setUpdateProviders(UpdateProdiver... updateProviders) {
+        this.updateProdivers.addAll(List.of(updateProviders));
         return this;
     }
 
