@@ -19,7 +19,7 @@ public class ConfigUpdater {
     private final String jarVersion;
     private final Collection<String> files;
     private final Collection<UpdateProdiver> updateProdivers;
-    private final boolean mergeMissingNodes;
+    private final boolean mergeMissingNodes, updateConfigVersion;
     private final long backupStart = System.currentTimeMillis();
 
     private Map<String, FileConfiguration> diskConfigs = new HashMap<>();
@@ -27,7 +27,8 @@ public class ConfigUpdater {
 
     ConfigUpdater(JavaPlugin plugin, Collection<String> files,
                   String configVersion, String jarVersion,
-                  Collection<UpdateProdiver> updateProdivers, boolean mergeMissingNodes) {
+                  Collection<UpdateProdiver> updateProdivers, boolean mergeMissingNodes,
+                  boolean updateConfigVersion) {
         this.plugin = plugin;
         this.pluginConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
         this.files = files;
@@ -36,6 +37,7 @@ public class ConfigUpdater {
         this.jarVersion = jarVersion;
         this.updateProdivers = updateProdivers;
         this.mergeMissingNodes = mergeMissingNodes;
+        this.updateConfigVersion = updateConfigVersion;
     }
 
     public void update() {
@@ -93,6 +95,8 @@ public class ConfigUpdater {
     }
 
     private void updateConfigVersion() {
+        if (!updateConfigVersion) return;
+
         File diskFile = new File(plugin.getDataFolder(), "config.yml");
         if (!diskFile.exists()) return;
 
