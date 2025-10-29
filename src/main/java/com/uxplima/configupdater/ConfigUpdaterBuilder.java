@@ -3,6 +3,7 @@ package com.uxplima.configupdater;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ConfigUpdaterBuilder {
 
@@ -12,6 +13,8 @@ public class ConfigUpdaterBuilder {
     private String configVersion;
     private String jarVersion;
     private boolean mergeMissingNodes, deleteUnknownNodes, updateConfigVersion;
+    private long backupStart;
+    private List<Predicate<String>> configNodeConditions;
 
     public ConfigUpdaterBuilder(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -67,6 +70,16 @@ public class ConfigUpdaterBuilder {
         return this;
     }
 
+    public ConfigUpdaterBuilder setBackupStart(long backupStart) {
+        this.backupStart = backupStart;
+        return this;
+    }
+
+    public ConfigUpdaterBuilder setConfigNodeConditions(List<Predicate<String>> configNodeConditions) {
+        this.configNodeConditions = configNodeConditions;
+        return this;
+    }
+
     public ConfigUpdater build() {
         Objects.requireNonNull(plugin, "plugin cannot be null");
         Objects.requireNonNull(configVersion, "configVersion cannot be null");
@@ -76,7 +89,7 @@ public class ConfigUpdaterBuilder {
             throw new IllegalArgumentException("Files cannot be null");
         }
 
-        return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion);
+        return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion, backupStart, configNodeConditions);
     }
 
 }

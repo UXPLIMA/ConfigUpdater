@@ -8,6 +8,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 public class ConfigUpdater {
@@ -20,7 +21,8 @@ public class ConfigUpdater {
     private final Collection<String> files;
     private final Collection<UpdateProdiver> updateProdivers;
     private final boolean mergeMissingNodes, deleteUnknownNodes, updateConfigVersion;
-    private final long backupStart = System.currentTimeMillis();
+    private final long backupStart;
+    private final List<Predicate<String>> configNodeConditions;
 
     private Map<String, FileConfiguration> diskConfigs = new HashMap<>();
     private Map<String, FileConfiguration> resourceConfigs = new HashMap<>();
@@ -28,7 +30,8 @@ public class ConfigUpdater {
     ConfigUpdater(JavaPlugin plugin, Collection<String> files,
                   String configVersion, String jarVersion,
                   Collection<UpdateProdiver> updateProdivers, boolean mergeMissingNodes,
-                  boolean deleteUnknownNodes, boolean updateConfigVersion) {
+                  boolean deleteUnknownNodes, boolean updateConfigVersion,
+                  long backupStart, List<Predicate<String>> configNodeConditions) {
         this.plugin = plugin;
         this.pluginConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
         this.files = files;
@@ -38,7 +41,9 @@ public class ConfigUpdater {
         this.updateProdivers = updateProdivers;
         this.mergeMissingNodes = mergeMissingNodes;
         this.updateConfigVersion = updateConfigVersion;
+        this.backupStart = backupStart;
         this.deleteUnknownNodes = deleteUnknownNodes;
+        this.configNodeConditions = configNodeConditions == null ? List.of() : configNodeConditions;
     }
 
     public void update() {
@@ -142,6 +147,10 @@ public class ConfigUpdater {
 
             if (deleteUnknownNodes) {
                 for (String key : diskConfig.getKeys(true)) {
+                    if (configNodeConditions.stream().anyMatch(condition -> condition.test(key))) {
+                        continue;
+                    }
+
                     if (!resourceConfig.isSet(key)) {
                         diskConfig.set(key, null);
                         diskConfig.setComments(key, null);
@@ -161,7 +170,7 @@ public class ConfigUpdater {
 
     private void backup(String name, File file) {
         try {
-            File backupFile = new File(plugin.getDataFolder(), "backup-" + backupStart + "/" + name);
+            File backupFile = new File(plugin.getDataFolder(), "backups/backup-" + backupStart + "/" + name);
             backupFile.getParentFile().mkdirs();
             backupFile.createNewFile();
             Files.copy(file.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
