@@ -10,8 +10,8 @@ public class ConfigUpdaterBuilder {
     private JavaPlugin plugin;
     private Collection<String> files = new ArrayList<>();
     private Collection<UpdateProdiver> updateProdivers = new ArrayList<>();
-    private String configVersion;
-    private String jarVersion;
+    private String configVersion, jarVersion;
+    private String[] supportedLangs;
     private boolean mergeMissingNodes, deleteUnknownNodes, updateConfigVersion;
     private long backupStart;
     private List<Predicate<String>> configNodeConditions;
@@ -80,6 +80,11 @@ public class ConfigUpdaterBuilder {
         return this;
     }
 
+    public ConfigUpdaterBuilder setSupportedLangs(String... supportedLangs) {
+        this.supportedLangs = supportedLangs;
+        return this;
+    }
+
     public ConfigUpdater build() {
         Objects.requireNonNull(plugin, "plugin cannot be null");
         Objects.requireNonNull(configVersion, "configVersion cannot be null");
@@ -89,7 +94,7 @@ public class ConfigUpdaterBuilder {
             throw new IllegalArgumentException("Files cannot be null");
         }
 
-        return new ConfigUpdater(plugin, files, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion, backupStart, configNodeConditions);
+        return new ConfigUpdater(plugin, files, supportedLangs, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion, backupStart, configNodeConditions);
     }
 
 }

@@ -16,9 +16,9 @@ public class ConfigUpdater {
     private final JavaPlugin plugin;
     private final FileConfiguration pluginConfig;
     private final Logger logger;
-    private final String configVersion;
-    private final String jarVersion;
+    private final String configVersion, jarVersion;
     private final Collection<String> files;
+    private final String[] supportedLangs;
     private final Collection<UpdateProdiver> updateProdivers;
     private final boolean mergeMissingNodes, deleteUnknownNodes, updateConfigVersion;
     private final long backupStart;
@@ -28,6 +28,7 @@ public class ConfigUpdater {
     private Map<String, FileConfiguration> resourceConfigs = new HashMap<>();
 
     ConfigUpdater(JavaPlugin plugin, Collection<String> files,
+                  String[] supportedLangs,
                   String configVersion, String jarVersion,
                   Collection<UpdateProdiver> updateProdivers, boolean mergeMissingNodes,
                   boolean deleteUnknownNodes, boolean updateConfigVersion,
@@ -35,6 +36,7 @@ public class ConfigUpdater {
         this.plugin = plugin;
         this.pluginConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
         this.files = files;
+        this.supportedLangs = supportedLangs;
         this.logger = plugin.getLogger();
         this.configVersion = configVersion;
         this.jarVersion = jarVersion;
@@ -47,10 +49,7 @@ public class ConfigUpdater {
     }
 
     public void update() {
-        if (configVersion.equalsIgnoreCase(jarVersion)) return;
-
-        logger.info("New version detected!");
-        logger.info("Starting to update config files...\n");
+        if (!requiresUpdate()) return;
 
         backupFiles();
         cacheFiles();
@@ -75,20 +74,22 @@ public class ConfigUpdater {
     }
 
     private void cacheFiles() {
-        for (String file : files) {
-            file = file.replace("%lang%", pluginConfig.getString("language"));
-            file = file + ".yml";
+        for (String lang : supportedLangs) {
+            for (String file : files) {
+                file = file.replace("%lang%", lang);
+                file = file + ".yml";
 
-            File diskFile = new File(plugin.getDataFolder(), file);
-            if (!diskFile.exists()) {
-                continue;
+                File diskFile = new File(plugin.getDataFolder(), file);
+                if (!diskFile.exists()) {
+                    continue;
+                }
+
+                YamlConfiguration diskConfig = YamlConfiguration.loadConfiguration(diskFile);
+                YamlConfiguration resourceConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(file)));
+
+                diskConfigs.put(file, diskConfig);
+                resourceConfigs.put(file, resourceConfig);
             }
-
-            YamlConfiguration diskConfig = YamlConfiguration.loadConfiguration(diskFile);
-            YamlConfiguration resourceConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(file)));
-
-            diskConfigs.put(file, diskConfig);
-            resourceConfigs.put(file, resourceConfig);
         }
     }
 
@@ -187,6 +188,10 @@ public class ConfigUpdater {
         }
     }
 
+    public boolean requiresUpdate() {
+        return !configVersion.equalsIgnoreCase(jarVersion);
+    }
+
     public FileConfiguration getDiskConfigFrom(String file) {
         return diskConfigs.get(file);
     }
@@ -205,6 +210,10 @@ public class ConfigUpdater {
 
     public Map<String, FileConfiguration> getResourceConfigs() {
         return resourceConfigs;
+    }
+
+    public FileConfiguration getPluginConfig() {
+        return pluginConfig;
     }
 
     public JavaPlugin getPlugin() {
