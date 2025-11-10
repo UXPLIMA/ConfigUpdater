@@ -61,7 +61,7 @@ public class ConfigUpdater {
     private void backupFiles() {
         for (String file : files) {
             file = file.replace("%lang%", pluginConfig.getString("language"));
-            file = file + ".yml";
+            if (!file.contains(".")) file = file + ".yml";
 
             File diskFile = new File(plugin.getDataFolder(), file);
             if (!diskFile.exists()) {
@@ -76,8 +76,10 @@ public class ConfigUpdater {
     private void cacheFiles() {
         for (String lang : supportedLangs) {
             for (String file : files) {
-                file = file.replace("%lang%", lang);
+                if (file.contains(".")) continue;
                 file = file + ".yml";
+
+                file = file.replace("%lang%", lang);
 
                 File diskFile = new File(plugin.getDataFolder(), file);
                 if (!diskFile.exists()) {
@@ -118,6 +120,8 @@ public class ConfigUpdater {
         cacheFiles(); // Cache again since providers may have changed the files.
 
         for (String file : files) {
+            if (file.contains(".")) continue;
+
             file = file.replace("%lang%", pluginConfig.getString("language"));
             file = file + ".yml";
 
