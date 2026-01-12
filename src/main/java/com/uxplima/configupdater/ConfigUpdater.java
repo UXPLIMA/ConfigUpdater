@@ -60,7 +60,7 @@ public class ConfigUpdater {
 
     private void backupFiles() {
         for (String file : files) {
-            file = file.replace("%lang%", pluginConfig.getString("language"));
+            file = file.replace("%lang%", pluginConfig.getString("language", "en"));
             if (!file.contains(".")) file = file + ".yml";
 
             File diskFile = new File(plugin.getDataFolder(), file);
@@ -77,9 +77,16 @@ public class ConfigUpdater {
         for (String lang : supportedLangs) {
             for (String file : files) {
                 if (file.contains(".")) continue;
-                file = file + ".yml";
 
+                file = file + ".yml";
                 file = file.replace("%lang%", lang);
+
+                try {
+                    YamlConfiguration resourceConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(file)));
+                    resourceConfigs.put(file, resourceConfig);
+                } catch (Exception e) {
+                    plugin.getLogger().warning("No resource file for " + file + ".");
+                }
 
                 File diskFile = new File(plugin.getDataFolder(), file);
                 if (!diskFile.exists()) {
@@ -87,10 +94,7 @@ public class ConfigUpdater {
                 }
 
                 YamlConfiguration diskConfig = YamlConfiguration.loadConfiguration(diskFile);
-                YamlConfiguration resourceConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(file)));
-
                 diskConfigs.put(file, diskConfig);
-                resourceConfigs.put(file, resourceConfig);
             }
         }
     }
@@ -122,7 +126,7 @@ public class ConfigUpdater {
         for (String file : files) {
             if (file.contains(".")) continue;
 
-            file = file.replace("%lang%", pluginConfig.getString("language"));
+            file = file.replace("%lang%", pluginConfig.getString("language", "en"));
             file = file + ".yml";
 
             File diskFile = new File(plugin.getDataFolder(), file);
@@ -202,6 +206,10 @@ public class ConfigUpdater {
 
     public FileConfiguration getResourceConfigFrom(String file) {
         return resourceConfigs.get(file);
+    }
+
+    public String getConfigVersion() {
+        return configVersion;
     }
 
     public Collection<String> getFiles() {

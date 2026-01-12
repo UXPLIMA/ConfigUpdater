@@ -7,7 +7,7 @@ public interface UpdateProdiver {
     void update(ConfigUpdater updater);
 
     default int configVerToInt(String ver) {
-        return Integer.parseInt(ver.replace(".", ""));
+        return Integer.parseInt(ver.replace(".", "").replace("-SNAPSHOT", ""));
     }
 
 }
