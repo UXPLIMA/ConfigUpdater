@@ -9,7 +9,7 @@ public class ConfigUpdaterBuilder {
 
     private JavaPlugin plugin;
     private Collection<String> files = new ArrayList<>();
-    private Collection<UpdateProdiver> updateProdivers = new ArrayList<>();
+    private Collection<UpdateProvider> updateProviders = new ArrayList<>();
     private String configVersion, jarVersion;
     private String[] supportedLangs;
     private String currentLang, configVersionPath;
@@ -46,13 +46,13 @@ public class ConfigUpdaterBuilder {
         return this;
     }
 
-    public ConfigUpdaterBuilder setUpdateProviders(Collection<UpdateProdiver> updateProviders) {
-        this.updateProdivers = updateProviders;
+    public ConfigUpdaterBuilder setUpdateProviders(Collection<UpdateProvider> updateProviders) {
+        this.updateProviders = updateProviders;
         return this;
     }
 
-    public ConfigUpdaterBuilder setUpdateProviders(UpdateProdiver... updateProviders) {
-        this.updateProdivers.addAll(List.of(updateProviders));
+    public ConfigUpdaterBuilder setUpdateProviders(UpdateProvider... updateProviders) {
+        this.updateProviders.addAll(List.of(updateProviders));
         return this;
     }
 
@@ -110,7 +110,7 @@ public class ConfigUpdaterBuilder {
             throw new IllegalArgumentException("Files cannot be null");
         }
 
-        return new ConfigUpdater(plugin, files, supportedLangs, currentLang, configVersionPath, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion, backupStart, deleteConfigNodeConditions, mergeConfigNodeConditions);
+        return new ConfigUpdater(plugin, files, supportedLangs, currentLang, configVersionPath, configVersion, jarVersion, updateProviders, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion, backupStart, deleteConfigNodeConditions, mergeConfigNodeConditions);
     }
 
 }

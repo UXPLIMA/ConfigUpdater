@@ -20,7 +20,7 @@ public class ConfigUpdater {
     private final Collection<String> files;
     private final String[] supportedLangs;
     private final String currentLang, configVersionPath;
-    private final Collection<UpdateProdiver> updateProdivers;
+    private final Collection<UpdateProvider> updateProviders;
     private final boolean mergeMissingNodes, deleteUnknownNodes, updateConfigVersion;
     private final long backupStart;
     private final List<Predicate<String>> deleteConfigNodeConditions, mergeConfigNodeConditions;
@@ -32,7 +32,7 @@ public class ConfigUpdater {
                   String[] supportedLangs, String currentLang,
                   String configVersionPath,
                   String configVersion, String jarVersion,
-                  Collection<UpdateProdiver> updateProdivers, boolean mergeMissingNodes,
+                  Collection<UpdateProvider> updateProviders, boolean mergeMissingNodes,
                   boolean deleteUnknownNodes, boolean updateConfigVersion,
                   long backupStart,
                   List<Predicate<String>> deleteConfigNodeConditions, List<Predicate<String>> mergeConfigNodeConditions) {
@@ -45,7 +45,7 @@ public class ConfigUpdater {
         this.logger = plugin.getLogger();
         this.configVersion = configVersion;
         this.jarVersion = jarVersion;
-        this.updateProdivers = updateProdivers;
+        this.updateProviders = updateProviders;
         this.mergeMissingNodes = mergeMissingNodes;
         this.updateConfigVersion = updateConfigVersion;
         this.backupStart = backupStart;
@@ -106,7 +106,7 @@ public class ConfigUpdater {
     }
 
     private void runProvidedUpdates() {
-        for (UpdateProdiver prodiver : updateProdivers) {
+        for (UpdateProvider prodiver : updateProviders) {
             if (!prodiver.shouldUpdate(this)) continue;
 
             prodiver.update(this);

@@ -1,6 +1,6 @@
 package com.uxplima.configupdater;
 
-public interface UpdateProdiver {
+public interface UpdateProvider {
 
     boolean shouldUpdate(ConfigUpdater configUpdater);
 
