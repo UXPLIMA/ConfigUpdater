@@ -101,7 +101,7 @@ public class ConfigUpdater {
 
     private void runProvidedUpdates() {
         for (UpdateProdiver prodiver : updateProdivers) {
-            if (!prodiver.check(this)) continue;
+            if (!prodiver.shouldUpdate(this)) continue;
 
             prodiver.update(this);
         }

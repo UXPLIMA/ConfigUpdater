@@ -2,7 +2,7 @@ package com.uxplima.configupdater;
 
 public interface UpdateProdiver {
 
-    boolean check(ConfigUpdater configUpdater);
+    boolean shouldUpdate(ConfigUpdater configUpdater);
 
     void update(ConfigUpdater updater);
 
