@@ -19,24 +19,29 @@ public class ConfigUpdater {
     private final String configVersion, jarVersion;
     private final Collection<String> files;
     private final String[] supportedLangs;
+    private final String currentLang, configVersionPath;
     private final Collection<UpdateProdiver> updateProdivers;
     private final boolean mergeMissingNodes, deleteUnknownNodes, updateConfigVersion;
     private final long backupStart;
-    private final List<Predicate<String>> configNodeConditions;
+    private final List<Predicate<String>> deleteConfigNodeConditions, mergeConfigNodeConditions;
 
     private Map<String, FileConfiguration> diskConfigs = new HashMap<>();
     private Map<String, FileConfiguration> resourceConfigs = new HashMap<>();
 
     ConfigUpdater(JavaPlugin plugin, Collection<String> files,
-                  String[] supportedLangs,
+                  String[] supportedLangs, String currentLang,
+                  String configVersionPath,
                   String configVersion, String jarVersion,
                   Collection<UpdateProdiver> updateProdivers, boolean mergeMissingNodes,
                   boolean deleteUnknownNodes, boolean updateConfigVersion,
-                  long backupStart, List<Predicate<String>> configNodeConditions) {
+                  long backupStart,
+                  List<Predicate<String>> deleteConfigNodeConditions, List<Predicate<String>> mergeConfigNodeConditions) {
         this.plugin = plugin;
         this.pluginConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
         this.files = files;
         this.supportedLangs = supportedLangs;
+        this.currentLang = currentLang;
+        this.configVersionPath = configVersionPath;
         this.logger = plugin.getLogger();
         this.configVersion = configVersion;
         this.jarVersion = jarVersion;
@@ -45,7 +50,8 @@ public class ConfigUpdater {
         this.updateConfigVersion = updateConfigVersion;
         this.backupStart = backupStart;
         this.deleteUnknownNodes = deleteUnknownNodes;
-        this.configNodeConditions = configNodeConditions == null ? List.of() : configNodeConditions;
+        this.deleteConfigNodeConditions = deleteConfigNodeConditions == null ? List.of() : deleteConfigNodeConditions;
+        this.mergeConfigNodeConditions = mergeConfigNodeConditions == null ? List.of() : mergeConfigNodeConditions;
     }
 
     public void update() {
@@ -60,7 +66,7 @@ public class ConfigUpdater {
 
     private void backupFiles() {
         for (String file : files) {
-            file = file.replace("%lang%", pluginConfig.getString("language", "en"));
+            file = file.replace("%lang%", currentLang);
             if (!file.contains(".")) file = file + ".yml";
 
             File diskFile = new File(plugin.getDataFolder(), file);
@@ -114,7 +120,7 @@ public class ConfigUpdater {
         if (!diskFile.exists()) return;
 
         FileConfiguration diskConfig = YamlConfiguration.loadConfiguration(diskFile);
-        diskConfig.set("config-version", jarVersion);
+        diskConfig.set(configVersionPath, jarVersion);
         save(diskFile, diskConfig);
 
         logger.info("Updated config version!\n");
@@ -126,7 +132,7 @@ public class ConfigUpdater {
         for (String file : files) {
             if (file.contains(".")) continue;
 
-            file = file.replace("%lang%", pluginConfig.getString("language", "en"));
+            file = file.replace("%lang%", currentLang);
             file = file + ".yml";
 
             File diskFile = new File(plugin.getDataFolder(), file);
@@ -145,6 +151,10 @@ public class ConfigUpdater {
 
             if (mergeMissingNodes) {
                 for (String key : resourceConfig.getKeys(true)) {
+                    if (mergeConfigNodeConditions.stream().anyMatch(condition -> condition.test(key))) {
+                        continue;
+                    }
+
                     if (!diskConfig.isSet(key)) {
                         diskConfig.set(key, resourceConfig.get(key));
                         diskConfig.setComments(key, resourceConfig.getComments(key));
@@ -156,7 +166,7 @@ public class ConfigUpdater {
 
             if (deleteUnknownNodes) {
                 for (String key : diskConfig.getKeys(true)) {
-                    if (configNodeConditions.stream().anyMatch(condition -> condition.test(key))) {
+                    if (deleteConfigNodeConditions.stream().anyMatch(condition -> condition.test(key))) {
                         continue;
                     }
 
@@ -214,6 +224,14 @@ public class ConfigUpdater {
 
     public Collection<String> getFiles() {
         return files;
+    }
+
+    public String[] getSupportedLangs() {
+        return supportedLangs;
+    }
+
+    public String getCurrentLang() {
+        return currentLang;
     }
 
     public Map<String, FileConfiguration> getDiskConfigs() {

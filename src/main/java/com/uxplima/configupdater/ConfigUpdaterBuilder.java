@@ -12,9 +12,10 @@ public class ConfigUpdaterBuilder {
     private Collection<UpdateProdiver> updateProdivers = new ArrayList<>();
     private String configVersion, jarVersion;
     private String[] supportedLangs;
+    private String currentLang, configVersionPath;
     private boolean mergeMissingNodes, deleteUnknownNodes, updateConfigVersion;
     private long backupStart;
-    private List<Predicate<String>> configNodeConditions;
+    private List<Predicate<String>> deleteConfigNodeConditions, mergeConfigNodeConditions;
 
     public ConfigUpdaterBuilder(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -75,13 +76,28 @@ public class ConfigUpdaterBuilder {
         return this;
     }
 
-    public ConfigUpdaterBuilder setConfigNodeConditions(List<Predicate<String>> configNodeConditions) {
-        this.configNodeConditions = configNodeConditions;
+    public ConfigUpdaterBuilder setDeleteConfigNodeConditions(List<Predicate<String>> deleteConfigNodeConditions) {
+        this.deleteConfigNodeConditions = deleteConfigNodeConditions;
+        return this;
+    }
+
+    public ConfigUpdaterBuilder setMergeConfigNodeConditions(List<Predicate<String>> mergeConfigNodeConditions) {
+        this.mergeConfigNodeConditions = mergeConfigNodeConditions;
         return this;
     }
 
     public ConfigUpdaterBuilder setSupportedLangs(String... supportedLangs) {
         this.supportedLangs = supportedLangs;
+        return this;
+    }
+
+    public ConfigUpdaterBuilder setCurrentLang(String currentLang) {
+        this.currentLang = currentLang;
+        return this;
+    }
+
+    public ConfigUpdaterBuilder setConfigVersionPath(String configVersionPath) {
+        this.configVersionPath = configVersionPath;
         return this;
     }
 
@@ -94,7 +110,7 @@ public class ConfigUpdaterBuilder {
             throw new IllegalArgumentException("Files cannot be null");
         }
 
-        return new ConfigUpdater(plugin, files, supportedLangs, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion, backupStart, configNodeConditions);
+        return new ConfigUpdater(plugin, files, supportedLangs, currentLang, configVersionPath, configVersion, jarVersion, updateProdivers, mergeMissingNodes, deleteUnknownNodes, updateConfigVersion, backupStart, deleteConfigNodeConditions, mergeConfigNodeConditions);
     }
 
 }
